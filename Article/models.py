@@ -58,7 +58,7 @@ class ArticleImages(models.Model):
         Article,
         on_delete=models.CASCADE,
         related_name='article_images')
-    images = models.ImageField(upload_to='images/articles')
+    image = models.ImageField(upload_to='images/articles')
 
     class Meta:
         indexes = [
