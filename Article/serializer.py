@@ -1,3 +1,4 @@
+import uuid
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from Article.models import Article, Category, ArticleImages
@@ -29,7 +30,6 @@ class ArticleModelSerializer(serializers.ModelSerializer):
         read_only_fields = ('created_at',)
 
     def create(self, validated_data):
-        print('111111111111111')
         bulk_create_array = []
         article_images = validated_data.pop('article_images')
         article = Article.objects.create(**validated_data)
@@ -58,7 +58,7 @@ class ArticleModelSerializer(serializers.ModelSerializer):
         if article_images_data:
             for image in article_images_data:
                 if 'id' in image:
-                    image_object = article_images.get(image['id'])
+                    image_object = article_images.get(uuid.UUID(image['id']))
                     if image_object:
                         image_object.image = image.get('image', image_object.image)
                         image_list.add(image_object.id)
