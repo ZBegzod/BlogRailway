@@ -1,10 +1,4 @@
-import os
-import base64
-
-from django.core.files import File
-from django.db.models import Q
 from rest_framework import status
-
 from .pagination import Pagination
 from rest_framework import generics, viewsets
 
@@ -21,10 +15,6 @@ from Article.serializer import (
     ArticleModelSerializer,
     DestroyModelSerializer,
     CategoryModelSerializer
-)
-from rest_framework.parsers import (
-    JSONParser, MultiPartParser,
-    FormParser, FileUploadParser
 )
 
 
