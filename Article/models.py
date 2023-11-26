@@ -65,5 +65,3 @@ class ArticleImages(models.Model):
             models.Index(fields=['id'])
         ]
 
-    def __str__(self):
-        return self.article

@@ -10,6 +10,8 @@ class CategoryModelSerializer(serializers.ModelSerializer):
 
 
 class ArticleImageModelSerializer(serializers.ModelSerializer):
+    image = serializers.CharField(required=False)
+
     class Meta:
         model = ArticleImages
         fields = ['id', 'image']
@@ -30,15 +32,12 @@ class ArticleModelSerializer(serializers.ModelSerializer):
         bulk_create_array = []
         article_images = validated_data.pop('article_images')
         article = Article.objects.create(**validated_data)
-
         if article_images:
             for image in article_images:
                 bulk_create_array.append(
                     ArticleImages(article=article, **image))
-
             if bulk_create_array:
                 ArticleImages.objects.bulk_create(bulk_create_array)
-
         return article
 
     def update(self, instance, validated_data):
@@ -90,4 +89,3 @@ class DestroyModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = ['id']
-
