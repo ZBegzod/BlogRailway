@@ -10,7 +10,7 @@ class CategoryModelSerializer(serializers.ModelSerializer):
 
 
 class ArticleImageModelSerializer(serializers.ModelSerializer):
-    image = serializers.CharField(required=False)
+    image = serializers.CharField()
 
     class Meta:
         model = ArticleImages
@@ -29,9 +29,11 @@ class ArticleModelSerializer(serializers.ModelSerializer):
         read_only_fields = ('created_at',)
 
     def create(self, validated_data):
+        print('111111111111111')
         bulk_create_array = []
         article_images = validated_data.pop('article_images')
         article = Article.objects.create(**validated_data)
+
         if article_images:
             for image in article_images:
                 bulk_create_array.append(

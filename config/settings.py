@@ -38,8 +38,10 @@ INSTALLED_APPS = [
 
     # local apps
     'Article',
-    
+
     # global apps
+    'ckeditor',
+    'ckeditor_uploader',
     'drf_yasg',
     'rest_framework',
     'rest_framework_simplejwt'
@@ -133,6 +135,14 @@ EST_FRAMEWORK = {
     ],
 }
 
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Full',
+    },
+}
+CKEDITOR_UPLOAD_PATH = 'uploads/'
+CKEDITOR_RESTRICT_BY_USER = True
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
@@ -142,6 +152,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+APPEND_SLASH = False
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
