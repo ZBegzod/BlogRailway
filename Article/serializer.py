@@ -1,4 +1,6 @@
 import uuid
+
+from django.core.files import File
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from Article.models import Article, Category, ArticleImages
@@ -11,7 +13,7 @@ class CategoryModelSerializer(serializers.ModelSerializer):
 
 
 class ArticleImageModelSerializer(serializers.ModelSerializer):
-    image = serializers.CharField()
+    # image = serializers.ImageField()
 
     class Meta:
         model = ArticleImages
@@ -19,35 +21,41 @@ class ArticleImageModelSerializer(serializers.ModelSerializer):
 
 
 class ArticleModelSerializer(serializers.ModelSerializer):
-    article_images = ArticleImageModelSerializer(many=True)
+    article_images = ArticleImageModelSerializer(many=True, read_only=True)
+    upload_images = serializers.ListField(
+        child=serializers.ImageField(max_length=1000000, allow_empty_file=False, use_url=False),
+        write_only=True
+    )
 
     class Meta:
         model = Article
         fields = [
             'id', 'category', 'title',
             'text', 'created_at',
-            'article_images']
+            'article_images', 'upload_images']
         read_only_fields = ('created_at',)
 
     def create(self, validated_data):
         bulk_create_array = []
-        article_images = validated_data.pop('article_images')
+        upload_images = validated_data.pop('upload_images')
         article = Article.objects.create(**validated_data)
 
-        if article_images:
-            for image in article_images:
+        if upload_images:
+            for image in upload_images:
                 bulk_create_array.append(
-                    ArticleImages(article=article, **image))
+                    ArticleImages(article=article, image=image))
+
             if bulk_create_array:
                 ArticleImages.objects.bulk_create(bulk_create_array)
-        return article
+
+            return article
 
     def update(self, instance, validated_data):
         image_list = set()
         bulk_update_array = []
         bulk_create_array = []
 
-        article_images_data = self.initial_data.get('article_images')
+        article_images_data = self.initial_data.get('upload_images')
         article_images = {image.id: image for image in instance.article_images.all()}
 
         instance.title = validated_data.get('title', instance.title)
