@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-bopfus1^0@etugy^%!@s&b#^lagnnf$3go8jd1i7_thwz5^o78
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '64.226.65.213']
 
 # Application definition
 
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'Article',
 
     # global apps
+    'corsheaders',
     'ckeditor',
     'ckeditor_uploader',
     'drf_yasg',
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -157,3 +159,27 @@ APPEND_SLASH = False
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CSRF_TRUSTED_ORIGINS = ["http://64.226.65.213:8000"]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
+    "http://localhost:8000",
+]
+
+CORS_ALLOW_METHODS = [
+    '*'
+]
+
+CORS_ALLOW_HEADERS = [
+    '*'
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+INTERNAL_IPS = [
+    'localhost',
+    "127.0.0.1",
+    '172.18.0.3'
+]
