@@ -1,9 +1,32 @@
 import uuid
-
-from django.core.files import File
+from rest_framework import status
 from rest_framework import serializers
+from django.contrib.auth.models import User
+
+from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from Article.models import Article, Category, ArticleImages
+
+
+class LoginSerializer(serializers.Serializer):
+    role = serializers.CharField(max_length=150, read_only=True)
+    username = serializers.CharField(max_length=150)
+    password = serializers.CharField(max_length=150, write_only=True)
+    refresh = serializers.CharField(max_length=254, required=False, read_only=True)
+    access = serializers.CharField(max_length=254, required=False, read_only=True)
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        password = attrs.get('password')
+        user_exists = get_object_or_404(User, username=username)
+
+        if user_exists:
+            if not user_exists.check_password(password):
+                msg = "password incorrect !"
+                raise serializers.ValidationError(msg, code=status.HTTP_404_NOT_FOUND)
+
+        attrs['user'] = user_exists
+        return attrs
 
 
 class CategoryModelSerializer(serializers.ModelSerializer):
@@ -13,8 +36,6 @@ class CategoryModelSerializer(serializers.ModelSerializer):
 
 
 class ArticleImageModelSerializer(serializers.ModelSerializer):
-    # image = serializers.ImageField()
-
     class Meta:
         model = ArticleImages
         fields = ['id', 'image']
