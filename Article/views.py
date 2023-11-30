@@ -1,11 +1,13 @@
 from rest_framework import status
-from rest_framework.decorators import api_view
-
 from .pagination import Pagination
-from rest_framework import generics, viewsets
 
+from rest_framework import generics, viewsets
 from Article.models import Article, Category
 from rest_framework.response import Response
+
+from rest_framework.permissions import IsAdminUser
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from rest_framework.mixins import (
     ListModelMixin,
     CreateModelMixin,
@@ -14,12 +16,26 @@ from rest_framework.mixins import (
     UpdateModelMixin
 )
 from Article.serializer import (
+    LoginSerializer,
     ArticleModelSerializer,
-    DestroyModelSerializer,
     CategoryModelSerializer
 )
+from .permissions import IsSuperOrReadOnly
 
-from rest_framework.parsers import FileUploadParser, MultiPartParser
+
+class LoginAPIView(generics.CreateAPIView):
+    serializer_class = LoginSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=self.request.data, context={'request': self.request})
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.validated_data['user']
+            refresh = RefreshToken.for_user(user)
+            serializer.validated_data['refresh'] = str(refresh)
+            serializer.validated_data['access'] = str(refresh.access_token)
+            serializer.validated_data['username'] = user.username
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
 
 # Create your views here.
@@ -28,6 +44,7 @@ class CategoryDetailAPIView(RetrieveModelMixin,
                             UpdateModelMixin,
                             viewsets.GenericViewSet):
     queryset = Category.objects.all()
+    permission_classes = [IsSuperOrReadOnly]
     serializer_class = CategoryModelSerializer
 
     def update(self, request, *args, **kwargs):
@@ -55,19 +72,8 @@ class CategoryAPIView(ListModelMixin, CreateModelMixin,
                       viewsets.GenericViewSet):
     pagination_class = Pagination
     queryset = Category.objects.all()
+    permission_classes = [IsSuperOrReadOnly]
     serializer_class = CategoryModelSerializer
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        context = {'request': request}
-        page = self.paginate_queryset(queryset)
-
-        if page is not None:
-            serializer = self.serializer_class(page, many=True, context=context)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.serializer_class(queryset, many=True, context=context)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -109,6 +115,7 @@ class ArticleListAPIView(generics.ListAPIView):
 
 class ArticleCreateAPIView(generics.CreateAPIView):
     queryset = Article.objects.all()
+    permission_classes = [IsAdminUser]
     serializer_class = ArticleModelSerializer
 
     def post(self, request, *args, **kwargs):
@@ -125,6 +132,7 @@ class ArticleDetailAPIView(RetrieveModelMixin,
                            UpdateModelMixin,
                            viewsets.GenericViewSet):
     queryset = Article.objects.all()
+    permission_classes = [IsSuperOrReadOnly]
     serializer_class = ArticleModelSerializer
 
     def retrieve(self, request, *args, **kwargs):
