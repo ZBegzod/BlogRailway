@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework import routers
 
 from Article.views import (
+    LoginAPIView,
     CategoryAPIView,
     ArticleListAPIView,
     ArticleCreateAPIView,
@@ -16,6 +17,7 @@ router.register(r'detail', ArticleDetailAPIView, basename='category-detail')
 urlpatterns = router.urls
 
 urlpatterns += [
+    path("login", LoginAPIView.as_view()),
     path("list", ArticleListAPIView.as_view()),
-    path("create", ArticleCreateAPIView.as_view()),
+    path("create", ArticleCreateAPIView.as_view())
 ]
